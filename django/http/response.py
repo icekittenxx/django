@@ -107,7 +107,12 @@ class HttpResponseBase(six.Iterator):
 
     def __setitem__(self, header, value):
         header = self._convert_to_charset(header, 'ascii')
-        value = self._convert_to_charset(value, 'latin1', mime_encode=True)
+        # Dec 15, 2013
+        # Maybe http header can hold non-ascii chars,
+        # otherwise it complains about newline inserted by itself, see bug #20889
+        # value = self._convert_to_charset(value, 'latin1', mime_encode=True)
+        if isinstance(value, unicode):
+            value = value.encode('utf-8')
         self._headers[header.lower()] = (header, value)
 
     def __delitem__(self, header):
